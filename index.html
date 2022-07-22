@@ -1,0 +1,77 @@
+<!DOCTYPE HTML>
+<html lang="FR">
+	<head>
+		<meta charset="UTF-8">
+		<title>🦇</title>
+		<link rel="icon" type="image/png" href="img/bat.ico"/>
+    <link rel="stylesheet" href="style/bootstrap.min.css">
+		<link rel="stylesheet" href="style/style.css">
+		<script src="scripts/fileSaver.js"> </script>
+		<style>
+			@font-face
+			{
+				font-family: 'Quicksand';
+				src: url('fonts/Quicksand_Light.otf');
+			}
+		</style>
+	</head>
+	<body class="container-fluid row my-4" style="background-color : #262626">
+				<div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 my-2">
+					<a class="fs-1 my-2" id="databat" href='https://github.com/DataBat2/databat2.github.io'>HORODATAGE AUDIOMOTH 🦇</a>
+				</div>
+				<div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 my-2">
+					<form id="form" onsubmit="saveFile();">
+						<div class="form-group row">
+							<div class="col-xl-4 col-lg-4 col-md-4 col-sm-6">
+								<input class="form-control my-2" type="file" id="inputFile" multiple>
+							</div>
+							<div class="col-xl-4 col-lg-4 col-md-4 col-sm-6">
+								<button type="submit" id="saveButton" class="btn btn-warning my-2" download>CONVERTIR</button>
+							</div>
+						</div>
+					</form>
+				</div>
+				<div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 my-2">
+					<a class='fs-1 my-2' href='http://gmn.asso.fr/'> <img id="gmn" class="" src="img/gmn.png" alt="Logo GMN"> </a>
+				</div>
+
+
+		<script>
+		let inputFile = document.getElementById('inputFile').files;
+		let fileArray = []; // Tableau des fichiers
+		let convertedHexArray =[]; // Tableau des noms des fichiers HEX convertis en heure réelle
+		let convertedDecArray =[]; // Tableau des noms des fichiers DEC convertis en heure réelle
+
+		function hexToDec(unixTimestampHex){ // Convertion des timestamps unix HEXADECIAML en DECIMAL
+			return parseInt(unixTimestampHex, 16);
+		}
+
+		function timestampConversion(timestamp){ // timestap UNIX en heures_minutes_secondes
+			let date = new Date(timestamp * 1000);
+			let hours = date.getHours();
+			let minutes = "0" + date.getMinutes();
+			let seconds = "0" + date.getSeconds();
+			return formattedTime = hours + 'h' + minutes.substr(-2) + 'm' + seconds.substr(-2) + 's'; // Will display time in HH:MM:SS format with 11:07 and not 11:7
+		}
+
+		// On stocke dans le tableau les fichiers renommés (on prends le nom du fichier, on enlève l'extension, on converti le timestamp hexa en decimal, puis de décimal en heure réelle)
+		function saveFile(){
+			for (let i = 0; i < inputFile.length; i++){
+				fileArray.push(inputFile[i]); // On stocke les fichiers uploads dans un tableau
+				let fileName = inputFile[i].name.substr(0, inputFile[i].name.lastIndexOf('.')) || inputFile[i].name; // Création de la String contenant le nom du fichier moins l'entension
+				let blob = inputFile[i].slice(0, inputFile[i].size, 'audio/x-wav'); // Création du Binary Object
+				if(fileName.length === 8){ // For HEX timestamp
+					convertedHexArray.push(timestampConversion(hexToDec(fileName)));
+					let horodatedHexFile = new File([blob], convertedHexArray[i]+'.WAV', {type: 'audio/x-wav'}); // Création du fichier en changeant le nom et en ne modifiant pas le contenu
+					saveAs(horodatedHexFile); // Fct de téléchargement du fichier
+				}
+				else if(fileName.length === 10){ // For DEC/Unix Epoch timestamp
+					convertedDecArray.push(timestampConversion(fileName));
+					let horodatedDecFile = new File([blob], convertedDecArray[i]+'.WAV', {type: 'audio/x-wav'}); // Création du fichier en changeant le nom et en ne modifiant pas le contenu
+					saveAs(horodatedDecFile); // Fct de téléchargement du fichier
+				}
+			}
+		}
+		</script>
+  </body>
+</html>
